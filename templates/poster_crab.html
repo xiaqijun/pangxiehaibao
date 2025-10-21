@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ data.title or '大闸蟹套餐价格表' }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <style>
+    html, body { min-height: 100vh; }
+    /* 使用系统字体栈，避免额外字体请求 */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', Arial, sans-serif; }
+    body { background-color: #f7f8fb; padding: 20px; color: #1f2937; }
+    .poster-container { max-width: 800px; margin: 0 auto; background:
+      radial-gradient(1200px 600px at 10% 0%, rgba(118, 75, 162, 0.08), transparent 60%),
+      radial-gradient(1000px 500px at 90% 0%, rgba(102, 126, 234, 0.08), transparent 60%),
+      #ffffff; padding: 32px; border-radius: 24px; border: 1px solid rgba(31, 41, 55, 0.06);
+      box-shadow: 0 10px 30px rgba(17, 24, 39, 0.08), 0 2px 8px rgba(17, 24, 39, 0.04); }
+    h1 { text-align: center; color: #111827; margin-bottom: 24px; font-size: 30px; line-height: 1.2; letter-spacing: 0.5px; position: relative; text-shadow: 0 2px 12px rgba(102, 126, 234, 0.18); }
+    h1::after { content: ""; display: block; width: 140px; height: 4px; margin: 12px auto 0; border-radius: 999px; background: linear-gradient(90deg, #667eea, #764ba2); }
+    .price-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
+    .price-card { background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.98)); border-radius: 16px; padding: 20px; box-shadow: 0 8px 24px rgba(17, 24, 39, 0.06); border: 1px solid rgba(31, 41, 55, 0.06); border-left: 6px solid var(--accent, #667eea); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .price-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(17, 24, 39, 0.1); }
+    .mixed-8 { --accent: #667eea; --accent-2: #8ea6ff; border-left-color: var(--accent); }
+    .mixed-10 { --accent: #764ba2; --accent-2: #a18cd1; border-left-color: var(--accent); }
+    .female-8 { --accent: #f093fb; --accent-2: #f5576c; border-left-color: var(--accent); }
+    .female-10 { --accent: #f5576c; --accent-2: #f093fb; border-left-color: var(--accent); }
+    .price-card h2 { text-align: center; margin-bottom: 14px; color: var(--accent, #333); font-size: 18px; letter-spacing: 0.3px; }
+    .price-table { width: 100%; border-collapse: separate; border-spacing: 0; overflow: hidden; border-radius: 12px; }
+    .price-table th, .price-table td { padding: 12px 10px; text-align: center; border-bottom: 1px solid rgba(17, 24, 39, 0.06); }
+    .price-table th { background-color: #667eea; color: white; font-weight: 700; }
+    .mixed-8 .price-table th { background: linear-gradient(135deg, #667eea, #8ea6ff); }
+    .mixed-10 .price-table th { background: linear-gradient(135deg, #764ba2, #a18cd1); }
+    .female-8 .price-table th { background: linear-gradient(135deg, #f093fb, #f5576c); }
+    .female-10 .price-table th { background: linear-gradient(135deg, #f5576c, #f093fb); }
+    .price-table tr:nth-child(even) { background-color: rgba(17, 24, 39, 0.02); }
+    .price-table .price { color: #E63946; font-weight: 800; }
+    .service-promises { margin-top: 8px; padding: 18px 20px; background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.98)); border-radius: 16px; border: 1px solid rgba(31, 41, 55, 0.06); box-shadow: 0 6px 20px rgba(17, 24, 39, 0.06); }
+    .service-promises ul { list-style-type: none; padding-left: 0; }
+    .service-promises li { margin-bottom: 10px; padding-left: 28px; position: relative; color: #374151; }
+    .service-promises li:before { content: ""; position: absolute; left: 0; top: 5px; width: 18px; height: 18px; border-radius: 6px; background: linear-gradient(135deg, #10b981, #34d399); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3); }
+    .service-promises li:after { content: "✓"; position: absolute; left: 4px; top: 2px; color: #fff; font-size: 14px; font-weight: 700; line-height: 1; }
+    .export-btn { display: block; margin: 20px auto; padding: 12px 28px; background: linear-gradient(90deg, #667eea, #764ba2); color: white; border: none; border-radius: 999px; font-size: 16px; cursor: pointer; box-shadow: 0 8px 20px rgba(102, 126, 234, 0.35); transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease; }
+    .export-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(118, 75, 162, 0.35); filter: brightness(1.03); }
+    .footer { text-align: center; margin-top: 26px; color: #6b7280; font-size: 12px; }
+    .highlight-line { margin: 10px 0 18px; padding: 12px 16px; background: linear-gradient(180deg, rgba(118, 75, 162, 0.08), rgba(102, 126, 234, 0.08)); border-left: 6px solid #764ba2; border-radius: 10px; font-size: 18px; color: #1f2937; text-align: center; font-weight: 700; box-shadow: 0 4px 14px rgba(17, 24, 39, 0.06); }
+    .highlight-line .badge { display: inline-block; margin-right: 8px; padding: 2px 8px; font-size: 12px; color: #fff; background: linear-gradient(135deg, #f5576c, #f093fb); border-radius: 999px; vertical-align: middle; box-shadow: 0 2px 10px rgba(245, 87, 108, 0.35); }
+    .highlight-line .price { color: #E63946; font-weight: 800; }
+    /* 预览编辑布局 */
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 480px; gap: 16px; align-items: start; }
+  .editor { background: #fff; border: 1px solid rgba(31,41,55,0.08); border-radius: 12px; box-shadow: 0 6px 20px rgba(17,24,39,0.06); padding: 12px; position: sticky; top: 12px; height: calc(100vh - 24px); overflow: auto; display: flex; flex-direction: column; }
+    .editor h3 { font-size: 16px; margin: 6px 0 10px; }
+  .editor textarea { width: 100%; flex: 1; min-height: 0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; border-radius: 8px; border: 1px solid #e5e7eb; padding: 10px; }
+  .editor .btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .editor .small { font-size: 12px; color: #6b7280; }
+  @media (max-width: 1024px) { .layout { grid-template-columns: 1fr; } .editor { position: static; height: auto; } }
+    /* 固定海报宽度，避免因编辑面板挤压导致样式变化 */
+  .canvas-wrap { overflow: auto; }
+  /* 移除固定宽度，保留最大宽度以保持观感 */
+  .poster-container { max-width: 800px; margin-left: auto; margin-right: auto; }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+    <div class="canvas-wrap">
+      <div class="poster-container" id="poster-content">
+        <h1 id="title-el">{{ data.title }}</h1>
+        {% if data.highlight %}
+        <div class="highlight-line" id="highlight-el">
+          {% if data.highlight.badge %}<span class="badge" id="highlight-badge">{{ data.highlight.badge }}</span>{% endif %}
+          <span id="highlight-text">{{ data.highlight.text }}</span> <span class="price" id="highlight-price">{{ data.highlight.price }} 元</span>
+        </div>
+        {% endif %}
+
+        <div class="price-grid" id="sections-el">
+          {% for sec in data.sections %}
+          <div class="price-card {{ sec.variant }}">
+            <h2>{{ sec.heading }}</h2>
+            <table class="price-table">
+              <tr>
+                <th>套餐规格</th>
+                <th>价格 (元)</th>
+              </tr>
+              {% for r in sec.rows %}
+              <tr>
+                <td>{{ r.spec }}</td>
+                <td class="price">{{ r.price }}</td>
+              </tr>
+              {% endfor %}
+            </table>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="service-promises" id="promises-el">
+          <ul>
+            {% for p in data.promises %}
+            <li>{{ p }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <button class="export-btn" onclick="exportAsPoster()">导出为海报</button>
+    </div>
+
+    <aside class="editor">
+      <h3>编辑模式</h3>
+      <textarea id="json-editor"></textarea>
+      <div class="btns">
+        <button class="btn btn-primary" onclick="applyChanges()">应用到预览</button>
+        <button class="btn btn-success" onclick="saveToServer()">保存到服务器</button>
+        <button class="btn btn-outline-secondary" onclick="copyShare()">复制分享链接</button>
+      </div>
+      <div class="small">保存成功后，分享链接即可访问当前内容。</div>
+    </aside>
+  </div>
+
+  <script>
+    function exportAsPoster() {
+      const element = document.getElementById('poster-content');
+      const button = document.querySelector('.export-btn');
+      button.style.display = 'none';
+      html2canvas(element, { scale: 2, useCORS: true, backgroundColor: null }).then(canvas => {
+        button.style.display = 'block';
+        const link = document.createElement('a');
+        const title = ({{ (data.title or '海报')|tojson }}).replace(/\s+/g, '');
+        link.download = `${title}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+
+    // 初始化编辑器默认值（美化缩进）
+    (function initEditor(){
+      const initial = {{ data | tojson }};
+      const txt = JSON.stringify(initial, null, 2);
+      document.getElementById('json-editor').value = txt;
+    })();
+
+    function renderFromData(d){
+      // 标题
+      document.getElementById('title-el').textContent = d.title || '';
+
+      // 突出行
+      const hl = document.getElementById('highlight-el');
+      if(d.highlight){
+        if(!hl){ return; }
+        const badgeEl = document.getElementById('highlight-badge');
+        if(badgeEl){ badgeEl.textContent = d.highlight.badge || ''; badgeEl.style.display = d.highlight.badge? 'inline-block':'none'; }
+        document.getElementById('highlight-text').textContent = d.highlight.text || '';
+        document.getElementById('highlight-price').textContent = (d.highlight.price || '') + ' 元';
+      }
+
+      // sections
+      const sectionsEl = document.getElementById('sections-el');
+      sectionsEl.innerHTML = '';
+      (d.sections || []).forEach(sec => {
+        const card = document.createElement('div');
+        card.className = `price-card ${sec.variant || ''}`;
+        const h2 = document.createElement('h2');
+        h2.textContent = sec.heading || '';
+        card.appendChild(h2);
+        const table = document.createElement('table');
+        table.className = 'price-table';
+        table.innerHTML = '<tr><th>套餐规格</th><th>价格 (元)</th></tr>';
+        (sec.rows || []).forEach(r => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${r.spec || ''}</td><td class="price">${r.price || ''}</td>`;
+          table.appendChild(tr);
+        });
+        card.appendChild(table);
+        sectionsEl.appendChild(card);
+      });
+
+      // 承诺
+      const promisesEl = document.getElementById('promises-el').querySelector('ul');
+      promisesEl.innerHTML = '';
+      (d.promises || []).forEach(txt => {
+        const li = document.createElement('li');
+        li.textContent = txt;
+        promisesEl.appendChild(li);
+      });
+    }
+
+    function applyChanges(){
+      const t = document.getElementById('json-editor').value;
+      try{
+        const d = JSON.parse(t);
+        renderFromData(d);
+      }catch(e){
+        alert('JSON 解析失败：' + e.message);
+      }
+    }
+
+    async function saveToServer(){
+      const t = document.getElementById('json-editor').value;
+      let d;
+      try{ d = JSON.parse(t); }catch(e){ alert('JSON 解析失败：' + e.message); return; }
+      const res = await fetch(`/posters/{{ poster_id }}/update-json`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(d)
+      });
+      const json = await res.json();
+      if(json.ok){ alert('已保存'); } else { alert('保存失败：' + (json.error||'未知错误')); }
+    }
+
+    async function copyShare(){
+      const url = window.location.href;
+      try{
+        await navigator.clipboard.writeText(url);
+        alert('链接已复制：' + url);
+      }catch(e){
+        alert('复制失败，请手动复制地址栏链接');
+      }
+    }
+  </script>
+</body>
+
+</html>

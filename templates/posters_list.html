@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}海报列表 - 海报管理平台{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="m-0">海报列表</h2>
+  <a class="btn btn-primary" href="{{ url_for('create_poster') }}">新建</a>
+  
+</div>
+
+<div class="row g-3">
+  {% for p in posters %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">{{ p.name }}</h5>
+        <div class="text-muted small mb-2">模板: {{ p.template }} | 更新时间: {{ p.updated_at.strftime('%Y-%m-%d %H:%M') }}</div>
+        <div class="mt-auto d-flex gap-2">
+          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('preview_poster', poster_id=p.id) }}" target="_blank">预览</a>
+          <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('edit_poster', poster_id=p.id) }}">编辑</a>
+          <form method="post" action="{{ url_for('delete_poster', poster_id=p.id) }}" onsubmit="return confirm('确定删除该海报吗？');">
+            <button class="btn btn-sm btn-outline-danger" type="submit">删除</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="col-12">
+    <div class="alert alert-info">暂无海报，点击右上角“新建”。</div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

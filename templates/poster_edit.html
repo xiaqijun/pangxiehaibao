@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}{{ '新建海报' if mode == 'create' else '编辑海报' }} - 海报管理平台{% endblock %}
+{% block content %}
+<h2 class="mb-3">{{ '新建海报' if mode == 'create' else '编辑海报' }}</h2>
+
+<form method="post" class="row g-3">
+  <div class="col-12 col-md-6">
+    <label class="form-label">名称</label>
+    <input type="text" name="name" class="form-control" value="{{ name }}" placeholder="例如：大闸蟹价目表 2025年版" required>
+  </div>
+  <div class="col-12 col-md-6">
+    <label class="form-label">模板</label>
+    <select name="template" class="form-select">
+      <option value="crab" {% if template_name=='crab' %}selected{% endif %}>大闸蟹价目表</option>
+    </select>
+  </div>
+
+  <div class="col-12">
+    <label class="form-label">模板数据(JSON)</label>
+    <textarea name="data_json" class="form-control" rows="18" spellcheck="false">{{ data_json }}</textarea>
+    <div class="form-text">可根据模板结构调整字段。建议先复制备份；保存前请确保 JSON 语法正确。</div>
+  </div>
+
+  <div class="col-12 d-flex gap-2">
+    <button type="submit" class="btn btn-primary">保存</button>
+    <a href="{{ url_for('list_posters') }}" class="btn btn-outline-secondary">返回</a>
+  </div>
+</form>
+{% endblock %}
